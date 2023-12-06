@@ -1,8 +1,10 @@
+using System.Reflection;
 using Business.Abstract;
 using Business.Concrete;
 using DataAccess.Abstract;
 using DataAccess.Concrete.EntityFramework;
 using FluentAssertions.Common;
+using FluentValidation.AspNetCore;
 using MvcWebUITest.Helpers;
 
 
@@ -21,7 +23,8 @@ builder.Services.AddScoped<ICartSessionHelper, CartSessionHelper>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSession();
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+	.AddFluentValidation(option=>option.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()));
 
 var app = builder.Build();
 

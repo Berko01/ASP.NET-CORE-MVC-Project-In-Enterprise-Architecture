@@ -2,6 +2,7 @@
 using Entities.Concrete;
 using Microsoft.AspNetCore.Mvc;
 using MvcWebUITest.Helpers;
+using MvcWebUITest.Models;
 
 namespace MvcWebUITest.Controllers
 {
@@ -14,7 +15,7 @@ namespace MvcWebUITest.Controllers
 		public CartController(ICartService cartService, ICartSessionHelper cartSessionHelper, IProductService productService)
 		{
 			_cartService = cartService;
-			this._cartSessionHelper = cartSessionHelper;
+			_cartSessionHelper = cartSessionHelper;
 			_productService = productService;
 		}
 
@@ -26,8 +27,22 @@ namespace MvcWebUITest.Controllers
 			_cartService.AddToCart(cart, product);
 			_cartSessionHelper.SetCart("cart",cart);
 
+			TempData.Add("message", product.ProductName + " sepete eklendi.");
+
 			return RedirectToAction("Index", "Product");
 		}
+
+        public IActionResult Index()
+        {
+            var model = new CartListViewModel
+            {
+                Cart = _cartSessionHelper.GetCart("cart")
+            };
+
+			return View(model);
+
+
+        }
 
 		public IActionResult RemoveFromCart(int productId)
 		{
@@ -35,8 +50,30 @@ namespace MvcWebUITest.Controllers
 			var cart = _cartSessionHelper.GetCart("cart");
 			_cartService.RemoveFromCart(cart, productId);
 			_cartSessionHelper.SetCart("cart", cart);
+			TempData.Add("message", product.ProductName + " sepetten silindi!");
+			return RedirectToAction("Index", "Cart");
+		}
 
-			return RedirectToAction("Index", "Product");
+		public IActionResult Complete()
+		{
+			var model = new ShippingDetailsViewModel
+			{
+				ShippingDetail = new ShippingDetail()
+			};
+
+			return View(model);
+		}
+
+		[HttpPost]
+		public IActionResult Complete(ShippingDetail shippingDetail)
+		{
+			if (!ModelState.IsValid)
+			{
+				return View();
+			}
+			TempData.Add("message","Siparişiniz başarıyla tamamlandı.");
+			_cartSessionHelper.Clear();
+			return RedirectToAction("Index", "Cart");
 		}
 	}
 }

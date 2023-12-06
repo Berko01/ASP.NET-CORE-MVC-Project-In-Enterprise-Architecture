@@ -6,7 +6,15 @@ namespace MvcWebUITest.Helpers
 	public class CartSessionHelper : ICartSessionHelper
 	{
 		private IHttpContextAccessor _httpContextAccessor;
-		public Cart GetCart(string key)
+
+        public CartSessionHelper(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+
+
+        public Cart GetCart(string key)
 		{
 			Cart cartToCheck = _httpContextAccessor.HttpContext.Session.GetObject<Cart>(key);
 			if (cartToCheck == null)
